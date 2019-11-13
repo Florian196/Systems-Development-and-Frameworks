@@ -2,11 +2,13 @@
   <div id="list">
 	<h3>{{headline}}</h3>
 	<ul>
-      <list-item v-for="(item, index) in ToDoList"
-                 v-bind:item='item'
-                 v-bind:key=index
-                 v-on:delete-item="deleteThisItem(index)">
-      </list-item>
+      <ListItem v-for="(item, index) in ToDoList"
+                 :item="item"
+                 :index="index"
+                 :key="index"
+                 v-on:deleteMyToDo="deleteMyToDo"
+                 v-on:addText="addText">
+      </ListItem>
       
 	</ul>
   <div id="add">
@@ -22,7 +24,7 @@ import ListItem from "./ListItem"
 export default {
   name: "list",
   components: {
-    "list-item" : ListItem
+    ListItem
   },
   data: function() {
 	return {
@@ -36,7 +38,7 @@ export default {
     }
   },
   methods: {
-    deleteThisItem: function(index) {
+    deleteMyToDo: function(index) {
       this.ToDoList.splice(index, 1);
     },
     addText: function(){

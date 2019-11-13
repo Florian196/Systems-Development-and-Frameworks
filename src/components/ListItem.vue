@@ -3,14 +3,14 @@
     <div v-if="edit">
       <li>
       <input v-model="new_item_text" />
-      <button @click="saveNewText">Save</button>
-      <button @click="cancelSavingMode">Cancel</button>
+      <button id="save" @click="saveNewText">Save</button>
+      <button id="cancel" @click="cancelSavingMode">Cancel</button>
       </li>
     </div>
     <div v-else>
       <li>{{item.text}}
-      <button @click="setSavingMode">Edit</button>
-      <button @click="$emit('delete-item')">Delete</button>
+      <button id="edit" @click="setSavingMode">Edit</button>
+      <button @click="deleteItem">Delete</button>
       </li>
     </div>
   </div>
@@ -18,8 +18,8 @@
 
 <script>
 export default {
-  name: 'list-item',
-  props: ['item'],
+  name: 'listItem',
+  props: ['item', 'index'],
   data: function() {
     return {
       edit: false,
@@ -38,6 +38,9 @@ export default {
     saveNewText: function() {
       this.item.text = this.new_item_text;
       this.edit = false;
+    },
+    deleteItem: function(){
+      this.$emit("deleteMyToDo", this.index);
     }
   }
 }
