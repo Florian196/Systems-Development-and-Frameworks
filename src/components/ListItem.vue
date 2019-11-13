@@ -1,20 +1,18 @@
 <template>
   <div id="list-item">
     <div v-if="edit">
-      <li>{{item.text}}
-      <button v-on:click="setSavingMode">Edit</button>
-      <button  @click="$emit('delete-item')">Delete</button>
+      <li>
+      <input v-model="new_item_text" />
+      <button @click="saveNewText">Save</button>
+      <button @click="cancelSavingMode">Cancel</button>
       </li>
     </div>
     <div v-else>
-      <li>
-      <input id="new-item-text" v-model="item.text" />
-      <button v-on:click="saveNewText">Save</button>
-      <button v-on:click="cancelSavingMode">Cancel</button>
+      <li>{{item.text}}
+      <button @click="setSavingMode">Edit</button>
+      <button @click="$emit('delete-item')">Delete</button>
       </li>
     </div>
-    
-    
   </div>
 </template>
 
@@ -24,20 +22,22 @@ export default {
   props: ['item'],
   data: function() {
     return {
-      edit: true
+      edit: false,
+      new_item_text: ""
     }
   },
   methods: {
     setSavingMode: function() {
-      this.edit = false;
+      this.edit = true;
+      this.new_item_text = this.item.text;
     },
 
     cancelSavingMode: function() {
-      this.edit = true;
+      this.edit = false;
     },
     saveNewText: function() {
-      this.item.text = document.getElementById("new-item-text").value;
-      this.edit = true;
+      this.item.text = this.new_item_text;
+      this.edit = false;
     }
   }
 }

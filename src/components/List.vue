@@ -10,7 +10,7 @@
       
 	</ul>
   <div id="add">
-        <input id="add-item-text" />
+        <input v-model="add_item_text" />
         <button v-on:click="addText">Add</button>
   </div>
   </div>
@@ -20,7 +20,7 @@
 import ListItem from "./ListItem" 
 
 export default {
-  name: "List",
+  name: "list",
   components: {
     "list-item" : ListItem
   },
@@ -28,10 +28,11 @@ export default {
 	return {
       headline: "ToDo-List",
       ToDoList: [
-        {text: 'Clean room'},
-        {text: 'Finish task1'},
-        { text: 'Add task2'}
-      ]
+        {text: "Clean room"},
+        {text: "Finish task1"},
+        {text: "Add task2"}
+      ],
+      add_item_text: ""
     }
   },
   methods: {
@@ -40,9 +41,9 @@ export default {
     },
     addText: function(){
       this.ToDoList.push({
-        text:  document.getElementById("add-item-text").value
+        text: this.add_item_text
       });
-      document.getElementById("add-item-text").value = "";
+      this.add_item_text = "";
     }
   }
 }

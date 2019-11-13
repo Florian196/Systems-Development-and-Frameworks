@@ -11,7 +11,7 @@ import List from "./components/List";
 export default {
   name: 'app',
   components: {
-    'list': List
+    List
   }
 }
 </script>
