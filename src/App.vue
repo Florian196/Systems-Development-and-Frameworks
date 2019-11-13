@@ -6,7 +6,7 @@
 
 <script>
 
-import List from "./components/task1/List";
+import List from "./components/List";
 
 export default {
   name: 'app',
