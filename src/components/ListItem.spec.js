@@ -10,7 +10,7 @@ const mountItem = shallowMount(ListItem, {
 });
 
 describe("ListItem", () => {
-    test('go in edit mode', () =>{
+    test('click on edit button shows input field', () =>{
         mountItem.find("#edit").trigger("click");
         expect(mountItem.contains("input")).toBe(true);
     });
