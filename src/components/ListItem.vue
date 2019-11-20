@@ -20,7 +20,7 @@
 export default {
   name: 'listItem',
   props: ['item', 'index'],
-  data: function() {
+  data() {
     return {
       edit: false,
       new_item_text: ""
