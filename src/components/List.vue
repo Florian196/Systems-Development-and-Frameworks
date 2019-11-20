@@ -6,7 +6,7 @@
                  :item="item"
                  :index="index"
                  :key="index"
-                 v-on:deleteMyToDo="deleteMyToDo"
+                 @deleteMyToDo="deleteMyToDo"
                  v-on:addText="addText">
       </ListItem>
       
