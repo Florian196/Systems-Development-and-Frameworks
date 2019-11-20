@@ -18,7 +18,7 @@ describe("List", () => {
         expect(wrapper.isVueInstance()).toBeTruthy()
     });
     test('renders `ListItem`s for each todo', () => {
-        expect(mountList.findAll(ListItem).length).toBe(3);
+        expect(mountList.findAll(ListItem)).toHaveLength(3);
     });
     test('Delete item', () => {
         const length = mountList.findAll(ListItem).length;
