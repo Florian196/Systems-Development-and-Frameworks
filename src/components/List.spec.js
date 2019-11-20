@@ -17,7 +17,7 @@ describe("List", () => {
         const wrapper = mount(List)
         expect(wrapper.isVueInstance()).toBeTruthy()
     });
-    test('contains data', () => {
+    test('renders `ListItem`s for each todo', () => {
         expect(mountList.findAll(ListItem).length).toBe(3);
     });
     test('Delete item', () => {
