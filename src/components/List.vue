@@ -2,15 +2,17 @@
   <div id="list">
 	<h3>{{headline}}</h3>
 	<ul>
-      <list-item v-for="(item, index) in ToDoList"
-                 v-bind:item='item'
-                 v-bind:key=index
-                 v-on:delete-item="deleteThisItem(index)">
-      </list-item>
+      <ListItem v-for="(item, index) in ToDoList"
+                 :item="item"
+                 :index="index"
+                 :key="index"
+                 @deleteMyToDo="deleteMyToDo"
+                 v-on:addText="addText">
+      </ListItem>
       
 	</ul>
   <div id="add">
-        <input id="add-item-text" />
+        <input v-model="add_item_text" />
         <button v-on:click="addText">Add</button>
   </div>
   </div>
@@ -20,29 +22,30 @@
 import ListItem from "./ListItem" 
 
 export default {
-  name: "List",
+  name: "list",
   components: {
-    "list-item" : ListItem
+    ListItem
   },
   data: function() {
 	return {
       headline: "ToDo-List",
       ToDoList: [
-        {text: 'Clean room'},
-        {text: 'Finish task1'},
-        { text: 'Add task2'}
-      ]
+        {text: "Clean room"},
+        {text: "Finish task1"},
+        {text: "Add task2"}
+      ],
+      add_item_text: ""
     }
   },
   methods: {
-    deleteThisItem: function(index) {
+    deleteMyToDo: function(index) {
       this.ToDoList.splice(index, 1);
     },
     addText: function(){
       this.ToDoList.push({
-        text:  document.getElementById("add-item-text").value
+        text: this.add_item_text
       });
-      document.getElementById("add-item-text").value = "";
+      this.add_item_text = "";
     }
   }
 }
