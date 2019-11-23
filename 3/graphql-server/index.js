@@ -3,7 +3,7 @@ const typeDefs = gql`
 
   type todos {
     title: String
-    author: String
+    done: String
   }
 
   type Query {
