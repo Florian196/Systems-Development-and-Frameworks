@@ -5,6 +5,8 @@ const { resolvers } = require("./resolvers");
 
 const { ApolloServer, gql } = require('apollo-server');
 
+const { jwt } = require('jsonwebtoken');
+
 describe("ServerTest", () => { 
 
   const server = new ApolloServer({
@@ -13,6 +15,18 @@ describe("ServerTest", () => {
   });
 
   const { query, mutate } = createTestClient(server);
+
+  it('test Login', async () => {
+    const res = await mutate({ mutation: LOGIN_USER,
+    variables: { username: "user1", password: "12345"}
+  });
+
+  let token = res.data.loginUser.token;
+
+  let res2 = await query({ query: GET_TODOS, 
+    variables: {token}})
+
+  });
 
   it('get all todos', async () => {
     const res = await query({ query: GET_TODOS});
@@ -137,5 +151,18 @@ const GET_TODOS = gql`
 {
   todos {
     title 	
+  }
+}`;
+
+const LOGIN_USER = gql`
+{
+  mutation{
+    loginUser(
+      data: {
+        $username: String!, 
+        $password: String!}) {
+      loginUser(data: { username: $username, password: $password}){
+        token
+      }}
   }
 }`;

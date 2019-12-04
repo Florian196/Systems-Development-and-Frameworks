@@ -15,16 +15,10 @@ const typeDefs = gql`
     id: Int
   }
   type Mutation {
-      addToDo(title: String!): [todos]
-      deleteToDo(index: Int!): [todos]
-      updateToDo(title: String!, index: Int!): [todos]
-      signupUser(data: UserCreateInput!) : AuthPayLoad!
+      addToDo(title: String!, token: String!): [todos]
+      deleteToDo(index: Int!, token: String!): [todos]
+      updateToDo(title: String!, index: Int!, token: String!): [todos]
       loginUser(data: UserLoginInput!): AuthPayLoad!  
-    }
-      
-  input UserCreateInput {
-      username: String!
-      password: String!
     }
     input UserLoginInput {
       username: String!

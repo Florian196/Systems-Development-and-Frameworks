@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
-const AuthenticationError = require('apollo-server-errors');
-const {decryptedToken} = require('./jwtDecoder');
+const {AuthenticationError} = require('apollo-server-errors');
+const decryptedToken = require('./jwtDecoder');
 const todos = [
     {
       title: 'SDF - Task 3',
@@ -29,35 +29,37 @@ const resolvers = {
   },
     Mutation: {
         addToDo: (object, input) =>{
-          const decrypted = decryptedToken(params.token);
+          const decrypted = decryptedToken(input.token);
           todos.push({
               title: input.title,
           });
         },
         deleteToDo: (object, input) =>{
-          const decrypted = decryptedToken(params.token);
+          const decrypted = decryptedToken(input.token);
           todos.splice(input.index, 1);
         },
         updateToDo: (object, input) => {
-          const decrypted = decryptedToken(params.token);
+          const decrypted = decryptedToken(input.token);
           todos[input.index].title = input.title;
         },
-      loginUser: (object, params)  => {
+      loginUser: (object, input)  => {
 
-        let user  = users.find(
-          user => user.username === params.username );
-        if(user !== undefined){
+        const{ data: { username, password}} = input;
+
+        let theUser  = users.find(
+          user => user.username === username );
+        if(theUser === undefined){
           throw new AuthenticationError(
             "Username undefined"
           );
         }
 
-        if(user.password !== params.password){
+        if(theUser.password !== password){
           throw new AuthenticationError(
             "Wrong password"
           )
         }
-        return {token : jwt.sign(user, "12345")};
+        return {token : jwt.sign(theUser, "12345")};
       }
     }
   };

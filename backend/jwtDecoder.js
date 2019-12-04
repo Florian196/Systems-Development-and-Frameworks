@@ -13,4 +13,4 @@ const decryptedToken = (token, requireAuth = true) => {
     return null;
 };
 
-module.exports = { decryptedToken }
+module.exports = decryptedToken;
