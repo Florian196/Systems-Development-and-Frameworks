@@ -6,7 +6,7 @@ const typeDefs = gql`
   }
 
   type Query {
-    todos: [todos]
+    todos (token: String!): [todos]
     users: [User]
   }
   type User {
@@ -18,7 +18,7 @@ const typeDefs = gql`
       addToDo(title: String!, token: String!): [todos]
       deleteToDo(index: Int!, token: String!): [todos]
       updateToDo(title: String!, index: Int!, token: String!): [todos]
-      loginUser(data: UserLoginInput!): AuthPayLoad!  
+      loginUser(username: String!, password: String!): AuthPayLoad!  
     }
     input UserLoginInput {
       username: String!

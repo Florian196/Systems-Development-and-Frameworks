@@ -42,8 +42,8 @@ const resolvers = {
         const decrypted = decryptedToken(input.token);
         todos[input.index].title = input.title;
       },
-      loginUser: (object, input)  => {
-        const{ data: { username, password}} = input;
+      loginUser: (object, params)  => {
+        const{ username, password} = params;
         let theUser  = users.find(
           user => user.username === username );
         if(theUser === undefined){
