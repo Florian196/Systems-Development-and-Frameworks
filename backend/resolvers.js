@@ -28,24 +28,22 @@ const resolvers = {
     }
   },
     Mutation: {
-        addToDo: (object, input) =>{
-          const decrypted = decryptedToken(input.token);
-          todos.push({
-              title: input.title,
-          });
-        },
-        deleteToDo: (object, input) =>{
-          const decrypted = decryptedToken(input.token);
-          todos.splice(input.index, 1);
-        },
-        updateToDo: (object, input) => {
-          const decrypted = decryptedToken(input.token);
-          todos[input.index].title = input.title;
-        },
+      addToDo: (object, input) =>{
+        const decrypted = decryptedToken(input.token);
+        todos.push({
+            title: input.title,
+        });
+      },
+      deleteToDo: (object, input) =>{
+        const decrypted = decryptedToken(input.token);
+        todos.splice(input.index, 1);
+      },
+      updateToDo: (object, input) => {
+        const decrypted = decryptedToken(input.token);
+        todos[input.index].title = input.title;
+      },
       loginUser: (object, input)  => {
-
         const{ data: { username, password}} = input;
-
         let theUser  = users.find(
           user => user.username === username );
         if(theUser === undefined){
@@ -53,7 +51,6 @@ const resolvers = {
             "Username undefined"
           );
         }
-
         if(theUser.password !== password){
           throw new AuthenticationError(
             "Wrong password"
@@ -63,7 +60,6 @@ const resolvers = {
       }
     }
   };
-
 
 module.exports.resolvers = resolvers;
 

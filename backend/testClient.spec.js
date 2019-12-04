@@ -21,7 +21,7 @@ describe("ServerTest", () => {
     variables: { username: "user1", password: "12345"}
   });
 
-  let token = res.data.loginUser.token;
+  let token = res.token;
 
   let res2 = await query({ query: GET_TODOS, 
     variables: {token}})
@@ -126,22 +126,22 @@ describe("ServerTest", () => {
 });
 
 const ADD_NEW_TODO = gql`
-  mutation addToDo($title: String!){
-    addToDo(title: $title){
+  mutation addToDo($title: String!, $token: token){
+    addToDo(title: $title, token: $token){
       title
     }
   }`;
 
   const DELETE_TODO = gql`
-  mutation deleteToDo($index: Int!){
-    deleteToDo(index: $index){
+  mutation deleteToDo($index: Int!, $token: token){
+    deleteToDo(index: $index, token: $token){
       title
     }
   }`;
 
   const UPDATE_TODO = gql`
-  mutation updateToDo($title: String!, $index: Int!){
-    updateToDo(title: $title, index: $index){
+  mutation updateToDo($title: String!, $index: Int!, $token: token){
+    updateToDo(title: $title, index: $index, token: $token){
       title
     }
   }`;
@@ -155,14 +155,8 @@ const GET_TODOS = gql`
 }`;
 
 const LOGIN_USER = gql`
-{
-  mutation{
-    loginUser(
-      data: {
-        $username: String!, 
-        $password: String!}) {
-      loginUser(data: { username: $username, password: $password}){
+  mutation loginUser($username: String!, $password: String!) {
+      loginUser(username: $username, password: $password){
         token
-      }}
-  }
-}`;
+      }
+  }`;
