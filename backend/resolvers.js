@@ -1,6 +1,9 @@
+const { neo4jgraphql } =  require ('neo4j-graphql-js');
+
 const jwt = require('jsonwebtoken');
-const {AuthenticationError} = require('apollo-server-errors');
+const { AuthenticationError } = require('apollo-server-errors');
 const decryptedToken = require('./jwtDecoder');
+
 const todos = [
     {
       title: 'SDF - Task 3',
@@ -22,9 +25,9 @@ const todos = [
 
 const resolvers = {
     Query: {
-      todos: (object, params) => {
+      todos: (object, params, ctx, resolveInfo) => {
         const decrypted = decryptedToken(params.token);
-        return todos;
+        return neo4jgraphql(object, params, ctx, resolveInfo);
     }
   },
     Mutation: {
