@@ -1,12 +1,14 @@
 const { gql } = require("apollo-server");
 
+
+
 const typeDefs = `
   type todos {
     title: String
   }
 
   type Query {
-    todos (token: String!): [todos]
+    todos: [todos]
     users: [User]
   }
   type User {
@@ -27,6 +29,11 @@ const typeDefs = `
     type AuthPayLoad {
       token: String!
     }
+    
+    schema {
+    query: Query
+    mutation: Mutation
+  }
 `;
 
 module.exports.typeDefs = typeDefs;

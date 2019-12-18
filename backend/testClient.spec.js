@@ -7,7 +7,10 @@ const { ApolloServer, gql } = require('apollo-server');
 
 const { jwt } = require('jsonwebtoken');
 
-const neo4j = require('neo4j-driver');
+const { v1 } = require('neo4j-driver');
+
+const { makeAugmentedSchema } = require('neo4j-graphql-js');
+const schema = makeAugmentedSchema ({ typeDefs , resolvers });
 
 let token;
 let query;
@@ -16,16 +19,23 @@ let mutate;
 describe("ServerTest", () => {
 
   beforeAll(async () => {
-    const neoDriver = neo4j.driver(
+    const neoDriver = v1.driver(
       'bolt://localhost:7687',
-      neo4j.auth.basic('neo4j', 'password')
+      v1.auth.basic('neo4j', 'password')
     );
 
     const server = new ApolloServer({
-      typeDefs,
-      resolvers,
-      neoDriver
+      schema
     });
+
+    server.requestOptions = {
+      context() {
+        return {
+          token: token,
+          neoDriver
+        }
+      }
+    };
 
     query = createTestClient(server).query;
     mutate = createTestClient(server).mutate;
@@ -35,11 +45,12 @@ describe("ServerTest", () => {
     const res = await mutate({ mutation: LOGIN_USER,
       variables: { username: "user1", password: "12345"}
     });
+
     token = res.data.loginUser.token;
 
-    let res2 = await query({ query: GET_TODOS, 
-      variables: {token: token}});
-  
+    let res2 = await query({ query: GET_TODOS});
+
+    console.log(res2);
     expect(res2).toMatchObject({
       "data": {
         "todos": [
@@ -174,8 +185,8 @@ const ADD_NEW_TODO = gql`
 
 
 const GET_TODOS = gql`
-  query($token: String!){
-    todos(token: $token) {
+  query{
+    todos {
       title 	
     }
   }

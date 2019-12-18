@@ -26,7 +26,7 @@ const todos = [
 const resolvers = {
     Query: {
       todos: (object, params, ctx, resolveInfo) => {
-        const decrypted = decryptedToken(params.token);
+        const decrypted = decryptedToken(ctx.token);
         return neo4jgraphql(object, params, ctx, resolveInfo);
     }
   },
@@ -46,9 +46,12 @@ const resolvers = {
         todos[input.index].title = input.title;
       },
       loginUser: (object, params)  => {
+
+
         const{ username, password} = params;
         let theUser  = users.find(
           user => user.username === username );
+
         if(theUser === undefined){
           throw new AuthenticationError(
             "Username undefined"

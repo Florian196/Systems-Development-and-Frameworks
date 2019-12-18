@@ -4,6 +4,7 @@ const { typeDefs } = require('./typeDefs');
 const { makeAugmentedSchema } = require('neo4j-graphql-js');
 const schema = makeAugmentedSchema ({ typeDefs });
 const neo4j = require('neo4j-driver');
+
 const neoDriver = neo4j.driver(
   'bolt://localhost:7687',
   neo4j.auth.basic('neo4j', 'password')
