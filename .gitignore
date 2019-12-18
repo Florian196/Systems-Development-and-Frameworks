@@ -23,3 +23,5 @@ yarn-error.log*
 
 #setting files
 .settings
+
+package-lock.json
