@@ -2,11 +2,11 @@ const { ApolloServer } = require('apollo-server');
 const { typeDefs } = require('./typeDefs');
 //const { resolvers } = require('./resolvers');
 const { makeAugmentedSchema } = require('neo4j-graphql-js');
-const { v1 } = require('neo4j-driver');
 const schema = makeAugmentedSchema ({ typeDefs });
-const neo4j = v1.driver(
+const neo4j = require('neo4j-driver');
+const neoDriver = neo4j.driver(
   'bolt://localhost:7687',
-  v1.auth.basic('neo4j', 'password')
+  neo4j.auth.basic('neo4j', 'password')
 );
 
 const server = new ApolloServer({ 
@@ -15,7 +15,7 @@ const server = new ApolloServer({
     const token = req.headers.authorization.replace("Bearer ", "");
     return {
       token: token || "",
-      neo4j
+      neoDriver
     };
   }
 });

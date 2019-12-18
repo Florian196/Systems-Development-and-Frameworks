@@ -7,16 +7,29 @@ const { ApolloServer, gql } = require('apollo-server');
 
 const { jwt } = require('jsonwebtoken');
 
+const neo4j = require('neo4j-driver');
+
 let token;
+let query;
+let mutate;
 
-describe("ServerTest", () => { 
+describe("ServerTest", () => {
 
-  const server = new ApolloServer({
-    typeDefs,
-    resolvers
+  beforeAll(async () => {
+    const neoDriver = neo4j.driver(
+      'bolt://localhost:7687',
+      neo4j.auth.basic('neo4j', 'password')
+    );
+
+    const server = new ApolloServer({
+      typeDefs,
+      resolvers,
+      neoDriver
+    });
+
+    query = createTestClient(server).query;
+    mutate = createTestClient(server).mutate;
   });
-
-  const { query, mutate } = createTestClient(server);
 
   it('test Login', async () => {
     const res = await mutate({ mutation: LOGIN_USER,
@@ -25,7 +38,7 @@ describe("ServerTest", () => {
     token = res.data.loginUser.token;
 
     let res2 = await query({ query: GET_TODOS, 
-      variables: {token: token}})
+      variables: {token: token}});
   
     expect(res2).toMatchObject({
       "data": {
@@ -165,7 +178,24 @@ const GET_TODOS = gql`
     todos(token: $token) {
       title 	
     }
-}`;
+  }
+`;
+
+const GET_TODOS_PAGED = gql`
+  query ($token: String!) {
+    todos(token: $token, first: 1, offset: 1) {
+      title
+    }
+  }
+`;
+
+const GET_TODOS_ORDERED = gql`
+  query ($token: String!) {
+    todos(token: $token, orderBy: text_asc) {
+      title
+    }
+  }
+`;
 
 const LOGIN_USER = gql`
   mutation loginUser($username: String!, $password: String!) {
