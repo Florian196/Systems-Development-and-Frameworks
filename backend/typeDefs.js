@@ -1,8 +1,7 @@
 const { gql } = require("apollo-server");
 
 
-
-const typeDefs = `
+const typeDefs = gql`
   type todos {
     title: String
   }
@@ -21,16 +20,11 @@ const typeDefs = `
       deleteToDo(index: Int!, token: String!): [todos]
       updateToDo(title: String!, index: Int!, token: String!): [todos]
       loginUser(username: String!, password: String!): AuthPayLoad!  
-    }
-    input UserLoginInput {
-      username: String!
-      password: String!
-    }
-    type AuthPayLoad {
-      token: String!
-    }
-    
-    schema {
+  }
+  type AuthPayLoad {
+    token: String!
+  }
+  schema {
     query: Query
     mutation: Mutation
   }

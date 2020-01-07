@@ -12,7 +12,7 @@ const todos = [
       title: 'SDF - Task 2',
     },
   ];
-  const users = [
+const users = [
     {
       username: "user1",
       password: "12345"
@@ -26,23 +26,20 @@ const todos = [
 const resolvers = {
     Query: {
       todos: (object, params, ctx, resolveInfo) => {
-        const decrypted = decryptedToken(ctx.token);
-        return neo4jgraphql(object, params, ctx, resolveInfo);
+        //return neo4jgraphql(object, params, ctx, resolveInfo);
+        return todos;
     }
   },
     Mutation: {
       addToDo: (object, input) =>{
-        const decrypted = decryptedToken(input.token);
         todos.push({
             title: input.title,
         });
       },
       deleteToDo: (object, input) =>{
-        const decrypted = decryptedToken(input.token);
         todos.splice(input.index, 1);
       },
       updateToDo: (object, input) => {
-        const decrypted = decryptedToken(input.token);
         todos[input.index].title = input.title;
       },
       loginUser: (object, params)  => {
@@ -68,5 +65,6 @@ const resolvers = {
   };
 
 module.exports.resolvers = resolvers;
+module.exports.users = users;
 
   

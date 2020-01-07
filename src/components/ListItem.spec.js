@@ -12,19 +12,19 @@ const mountItem = shallowMount(ListItem, {
 describe("ListItem", () => {
     test('click on edit button shows input field', () =>{
         mountItem.find("#edit").trigger("click");
-        expect(mountItem.contains("input")).toBe(true);
+        expect(mountItem.contains("new_item_text")).toBe(true);
     });
     test('cancel edit changes', () =>{
-        mountItem.find("input").setValue("edited");
+        mountItem.find("new_item_text").setValue("edited");
         mountItem.find("#cancel").trigger("click");
-        expect(mountItem.contains("input")).toBe(false);
+        expect(mountItem.contains("new_item_text")).toBe(false);
         expect(mountItem.props("item").text).toBe("original");
     });   
     test('save edit changes', () =>{
         mountItem.find("#edit").trigger("click");
-        mountItem.find("input").setValue("edited");
+        mountItem.find("new_item_text").setValue("edited");
         mountItem.find("#save").trigger("click");
-        expect(mountItem.contains("input")).toBe(false);
+        expect(mountItem.contains("new_item_text")).toBe(false);
         expect(mountItem.props("item").text).toBe("edited");
     });    
 });
