@@ -25,51 +25,39 @@ let TestClient = createTestClient(TestServer);
 let query = TestClient.query;
 let mutate = TestClient.mutate;
 
-const ADD_NEW_TODO = gql`
-  mutation addToDo($title: String!){
-    addToDo(title: $title){
-      title
+const ADD_NEW_MOVIE = gql`
+  mutation addMovie($title: String!, $length: Int!){
+    addMovie(title: $title, length: $length){
+      title,
+      length
     }
   }
 `;
 
-const DELETE_TODO = gql`
-  mutation deleteToDo($index: Int!){
-    deleteToDo(index: $index){
-      title
+const DELETE_MOVIE = gql`
+  mutation deleteMovie($index: Int!){
+    deleteMovie(index: $index){
+      title,
+      length
     }
   }
 `;
 
-const UPDATE_TODO = gql`
-  mutation updateToDo($title: String!, $index: Int!){
-    updateToDo(title: $title, index: $index){
-      title
+const UPDATE_MOVIE = gql`
+  mutation updateMovie($title: String!, $length: Int!, $index: Int!){
+    updateMovie(title: $title, length: $length, index: $index){
+      title,
+      length
     }
   }
 `;
 
 
-const GET_TODOS = gql`
+const GET_MOVIE_LIST = gql`
   query{
-    todos{
-      title 	
-    }
-  }
-`;
-
-const GET_TODOS_PAGED = gql`
-  query {
-    todos(first: 1, offset: 1){
-      title
-    }
-  }
-`;
-
-const GET_TODOS_ORDERED = gql`
-  query {
-    todos(orderBy: text_asc){
-      title
+    movieList {
+      title,
+      length
     }
   }
 `;
@@ -82,7 +70,7 @@ const LOGIN_USER = gql`
   }
 `;
 
-describe("Test Server with Login", () => {
+describe("Test server with valid login", () => {
   beforeAll(async () => {
     const result = await mutate({
       mutation: LOGIN_USER,
@@ -106,17 +94,19 @@ describe("Test Server with Login", () => {
     mutate = TestClient.mutate;
   });
 
-  it('get all todos', async () => {
-    const res = await query({ query: GET_TODOS});
+  it('gets the movie list', async () => {
+    const res = await query({ query: GET_MOVIE_LIST});
     expect(res).toMatchObject(
       {
         "data": {
-          "todos": [
+          "movieList": [
             {
-              "title": "SDF - Task 3",
+              "title": "Predator",
+              "length": 120
             },
             {
-              "title": "SDF - Task 2",
+              "title": "Frozen",
+              "length": 125
             }
           ]
         }
@@ -124,58 +114,64 @@ describe("Test Server with Login", () => {
     );
   });
 
-  it('add new todo', async() => {
-    const res = await mutate({ mutation: ADD_NEW_TODO,
-    variables: { title: "new todo title" }
+  it('adds a new movie', async() => {
+    const res = await mutate({ mutation: ADD_NEW_MOVIE,
+    variables: { title: "Es", length: 180 }
     });
     expect(res.errors).toBeUndefined();
     expect(res.data).toMatchObject(
       {
-        "addToDo": [
+        "addMovie": [
           {
-            "title": "SDF - Task 3",
+            "title": "Predator",
+            "length": 120
           },
           {
-            "title": "SDF - Task 2",
+            "title": "Frozen",
+            "length": 125
           },
           {
-            "title": "new todo title"
+            "title": "Es",
+            "length": 180
           }
         ]
       }
     );
   });
 
-  it('delete todo', async() => {
-    const res = await mutate({ mutation: DELETE_TODO,
-      variables: { index: 2}
+  it('deletes a movie', async() => {
+    const res = await mutate({ mutation: DELETE_MOVIE,
+      variables: {index: 2}
     });
-    expect(res.data.deleteToDo).toMatchObject(
+    expect(res.data.deleteMovie).toMatchObject(
       {
-        "title": "new todo title",
+        "title": "Es",
+        "length": 180
       }
     );
   });
 
-  it('delete todo with wrong index', async() => {
-    const res = await mutate({ mutation: DELETE_TODO,
-      variables: { index: 200}
+  it('deletes a movie with an invalid index', async() => {
+    const res = await mutate({ mutation: DELETE_MOVIE,
+      variables: {index: 200}
     });
-    expect(res.data.deleteToDo).toBe(null);
+    expect(res.data.deleteMovie).toBe(null);
   });
 
-  it('update todo', async() => {
-    const res = await mutate({ mutation: UPDATE_TODO,
-      variables: {  title: "updated todo title", index: 1}
+  it('updates a movie', async() => {
+    const res = await mutate({ mutation: UPDATE_MOVIE,
+      variables: {title: "Alien vs Predator", length: 128, index: 0}
     });
     expect(res.data).toMatchObject(
       {
-        "updateToDo": [
+        "updateMovie": [
           {
-            "title": "SDF - Task 3",
+            "title": "Alien vs Predator",
+            "length": 128
           },
           {
-            "title": "updated todo title",
+            "title": "Frozen",
+            "length": 125
           }
         ]
       }
@@ -183,16 +179,16 @@ describe("Test Server with Login", () => {
     
   });
 
-  it('update todo with wrong index', async() => {
-    const res = await mutate({ mutation: UPDATE_TODO,
-      variables: {  title: "updated todo title", index: 200}
+  it('updates a movie with an invalid index', async() => {
+    const res = await mutate({ mutation: UPDATE_MOVIE,
+      variables: {title: "Alien vs Predator", length: 128, index: 200}
     });
-    expect(res.data.updateToDo).toBe(null);
+    expect(res.data.updateMovie).toBe(null);
   });
 
 });
 
-describe("Test Server without Login", () => {
+describe("Test server without login", () => {
   beforeAll(async () => {
     let req = new Map();
     req.set("Authorization", "");
@@ -209,12 +205,12 @@ describe("Test Server without Login", () => {
     mutate = TestClient.mutate;
   });
 
-  it('get all todos fails, user no JWT', async () => {
-    const res = await query({ query: GET_TODOS});
+  it('fails to get movie list because the user has no JWT', async () => {
+    const res = await query({ query: GET_MOVIE_LIST});
     expect(res.errors[0].message).toBe("Not Authorised!");
   });
 
-  it('user login', async() => {
+  it('allows the server access for certain user', async() => {
     const result = await mutate({
       mutation: LOGIN_USER,
       variables: {

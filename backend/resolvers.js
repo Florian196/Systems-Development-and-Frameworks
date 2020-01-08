@@ -4,12 +4,14 @@ const jwt = require('jsonwebtoken');
 const { AuthenticationError } = require('apollo-server-errors');
 const decryptedToken = require('./jwtDecoder');
 
-const todos = [
+const movieList = [
     {
-      title: 'SDF - Task 3',
+      title: 'Predator',
+      length: 120
     },
     {
-      title: 'SDF - Task 2',
+      title: 'Frozen',
+      length: 125
     },
   ];
 const users = [
@@ -25,37 +27,36 @@ const users = [
 
 const resolvers = {
     Query: {
-      todos: (object, params, ctx, resolveInfo) => {
-        //return neo4jgraphql(object, params, ctx, resolveInfo);
-        return todos;
+      movieList: (object, params, ctx, resolveInfo) => {
+        return movieList;
     }
   },
     Mutation: {
-      addToDo: (object, input) =>{
-        todos.push({
-            title: input.title,
+      addMovie: (object, input) =>{
+        movieList.push({
+          title: input.title,
+          length: input.length
         });
-        return todos;
+        return movieList;
       },
-      deleteToDo: (object, input) =>{
-        if(input.index >= todos.length){
+      deleteMovie: (object, input) =>{
+        if(input.index >= movieList.length){
           return null;
         }
-        const delTodo = todos[input.index];
-        todos.splice(input.index, 1);
-        return delTodo;
+        const deletedMovie = movieList[input.index];
+        movieList.splice(input.index, 1);
+        return deletedMovie;
       },
-      updateToDo: (object, input) => {
-        if(input.index >= todos.length){
+      updateMovie: (object, input) => {
+        if(input.index >= movieList.length){
           return null;
         }
-        todos[input.index].title = input.title;
-        return todos;
+        movieList[input.index].title = input.title;
+        movieList[input.index].length = input.length;
+        return movieList;
          
       },
       loginUser: (object, params)  => {
-
-
         const{ username, password} = params;
         let theUser  = users.find(
           user => user.username === username );
