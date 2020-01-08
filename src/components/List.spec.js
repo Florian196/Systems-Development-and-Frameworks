@@ -22,7 +22,6 @@ describe("List", () => {
     });
     test('Delete item', () => {
         const length = mountList.findAll(ListItem).length;
-        console.log(length);
         mountList.find(ListItem).vm.$emit('deleteMyToDo', 0);
         setTimeout( ()=>{
             expect(mountList.findAll(ListItem).length).toBe(length - 1);

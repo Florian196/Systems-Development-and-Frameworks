@@ -1,74 +1,113 @@
 const { createTestClient } = require('apollo-server-testing');
-
-const { typeDefs } = require("./typeDefs");
-const { resolvers } = require("./resolvers");
-
 const { ApolloServer, gql } = require('apollo-server');
 
-const { jwt } = require('jsonwebtoken');
+const { typeDefs } = require('./typeDefs');
+const { resolvers } = require('./resolvers');
+const permissions  = require("./permissions");
+const { applyMiddleware} = require('graphql-middleware');
+const { makeExecutableSchema } = require("graphql-tools");
+const decryptedToken = require('./jwtDecoder');
+const getContext = require('./context');
 
-const { v1 } = require('neo4j-driver');
+const schema = applyMiddleware(makeExecutableSchema({ typeDefs, resolvers}),permissions);
 
-const { makeAugmentedSchema } = require('neo4j-graphql-js');
-const schema = makeAugmentedSchema ({ typeDefs , resolvers });
 
-let token;
-let query;
-let mutate;
-
-describe("ServerTest", () => {
-
-  beforeAll(async () => {
-    const neoDriver = v1.driver(
-      'bolt://localhost:7687',
-      v1.auth.basic('neo4j', 'password')
-    );
-
-    const server = new ApolloServer({
-      schema
-    });
-
-    server.requestOptions = {
-      context() {
-        return {
-          token: token,
-          neoDriver
-        }
+function getTestApolloServer(req) {
+  return new ApolloServer({
+      schema, context: () => {
+          return getContext(req);
       }
-    };
+  })
+}
 
-    query = createTestClient(server).query;
-    mutate = createTestClient(server).mutate;
+let TestServer = getTestApolloServer();
+let TestClient = createTestClient(TestServer);
+let query = TestClient.query;
+let mutate = TestClient.mutate;
+
+const ADD_NEW_TODO = gql`
+  mutation addToDo($title: String!){
+    addToDo(title: $title){
+      title
+    }
+  }
+`;
+
+const DELETE_TODO = gql`
+  mutation deleteToDo($index: Int!){
+    deleteToDo(index: $index){
+      title
+    }
+  }
+`;
+
+const UPDATE_TODO = gql`
+  mutation updateToDo($title: String!, $index: Int!){
+    updateToDo(title: $title, index: $index){
+      title
+    }
+  }
+`;
+
+
+const GET_TODOS = gql`
+  query{
+    todos{
+      title 	
+    }
+  }
+`;
+
+const GET_TODOS_PAGED = gql`
+  query {
+    todos(first: 1, offset: 1){
+      title
+    }
+  }
+`;
+
+const GET_TODOS_ORDERED = gql`
+  query {
+    todos(orderBy: text_asc){
+      title
+    }
+  }
+`;
+
+const LOGIN_USER = gql`
+  mutation loginUser($username: String!, $password: String!){
+    loginUser(username: $username, password: $password){
+      token
+    }
+  }
+`;
+
+describe("Test Server with Login", () => {
+  beforeAll(async () => {
+    const result = await mutate({
+      mutation: LOGIN_USER,
+      variables: {
+        username: "user1",
+        password: "12345"
+      }
+    });
+    let req = new Map();
+    req.set("Authorization", result.data.loginUser.token);
+    TestServer = getTestApolloServer(req);
+    TestClient = createTestClient(TestServer);
+    query = TestClient.query;
+    mutate = TestClient.mutate;
   });
 
-  it('test Login', async () => {
-    const res = await mutate({ mutation: LOGIN_USER,
-      variables: { username: "user1", password: "12345"}
-    });
-
-    token = res.data.loginUser.token;
-
-    let res2 = await query({ query: GET_TODOS});
-
-    console.log(res2);
-    expect(res2).toMatchObject({
-      "data": {
-        "todos": [
-          {
-            "title": "SDF - Task 3",
-          },
-          {
-            "title": "SDF - Task 2",
-          }
-        ]
-      }
-    })
+  afterAll(async ()=> {
+    TestServer = getTestApolloServer();
+    TestClient = createTestClient(TestServer);
+    query = TestClient.query;
+    mutate = TestClient.mutate;
   });
 
   it('get all todos', async () => {
-    const res = await query({ query: GET_TODOS, variables: {token: token}
-    });
-    
+    const res = await query({ query: GET_TODOS});
     expect(res).toMatchObject(
       {
         "data": {
@@ -87,130 +126,119 @@ describe("ServerTest", () => {
 
   it('add new todo', async() => {
     const res = await mutate({ mutation: ADD_NEW_TODO,
-    variables: { title: "new todo title", token: token }
+    variables: { title: "new todo title" }
     });
-   const res2 = await query({ query: GET_TODOS, variables: {token: token}});
-    
-    expect(res2).toMatchObject(
+    expect(res.errors).toBeUndefined();
+    expect(res.data).toMatchObject(
       {
-        "data": {
-          "todos": [
-            {
-              "title": "SDF - Task 3",
-            },
-            {
-              "title": "SDF - Task 2",
-            },
-            {
-              "title": "new todo title"
-            }
-          ]
-        }
+        "addToDo": [
+          {
+            "title": "SDF - Task 3",
+          },
+          {
+            "title": "SDF - Task 2",
+          },
+          {
+            "title": "new todo title"
+          }
+        ]
       }
     );
-    
   });
 
   it('delete todo', async() => {
     const res = await mutate({ mutation: DELETE_TODO,
-    variables: { index: 2, token: token }
+      variables: { index: 2}
     });
-
-   const res2 = await query({ query: GET_TODOS, variables: {token: token}});
-    
-    expect(res2).toMatchObject(
+    expect(res.data.deleteToDo).toMatchObject(
       {
-        "data": {
-          "todos": [
-            {
-              "title": "SDF - Task 3",
-            },
-            {
-              "title": "SDF - Task 2",
-            }
-          ]
-        }
+        "title": "new todo title",
+      }
+    );
+  });
+
+  it('delete todo with wrong index', async() => {
+    const res = await mutate({ mutation: DELETE_TODO,
+      variables: { index: 200}
+    });
+    expect(res.data.deleteToDo).toBe(null);
+  });
+
+  it('update todo', async() => {
+    const res = await mutate({ mutation: UPDATE_TODO,
+      variables: {  title: "updated todo title", index: 1}
+    });
+    expect(res.data).toMatchObject(
+      {
+        "updateToDo": [
+          {
+            "title": "SDF - Task 3",
+          },
+          {
+            "title": "updated todo title",
+          }
+        ]
       }
     );
     
   });
 
-  it('update todo', async() => {
+  it('update todo with wrong index', async() => {
     const res = await mutate({ mutation: UPDATE_TODO,
-    variables: {  title: "updated todo title", index: 1 , token: token}
+      variables: {  title: "updated todo title", index: 200}
     });
-
-   const res2 = await query({ query: GET_TODOS, variables: {token: token}});
-    
-    expect(res2).toMatchObject(
-      {
-        "data": {
-          "todos": [
-            {
-              "title": "SDF - Task 3",
-            },
-            {
-              "title": "updated todo title",
-            }
-          ]
-        }
-      }
-    );
-    
-  })
-
+    expect(res.data.updateToDo).toBe(null);
+  });
 
 });
 
-const ADD_NEW_TODO = gql`
-  mutation addToDo($title: String!, $token: String!){
-    addToDo(title: $title, token: $token){
-      title
-    }
-  }`;
+describe("Test Server without Login", () => {
+  beforeAll(async () => {
+    let req = new Map();
+    req.set("Authorization", "");
+    TestServer = getTestApolloServer(req);
+    TestClient = createTestClient(TestServer);
+    query = TestClient.query;
+    mutate = TestClient.mutate;
+  });
 
-  const DELETE_TODO = gql`
-  mutation deleteToDo($index: Int!, $token: String!){
-    deleteToDo(index: $index, token: $token){
-      title
-    }
-  }`;
+  afterAll(async ()=> {
+    TestServer = getTestApolloServer();
+    TestClient = createTestClient(TestServer);
+    query = TestClient.query;
+    mutate = TestClient.mutate;
+  });
 
-  const UPDATE_TODO = gql`
-  mutation updateToDo($title: String!, $index: Int!, $token: String!){
-    updateToDo(title: $title, index: $index, token: $token){
-      title
-    }
-  }`;
+  it('get all todos fails, user no JWT', async () => {
+    const res = await query({ query: GET_TODOS});
+    expect(res.errors[0].message).toBe("Not Authorised!");
+  });
 
-
-const GET_TODOS = gql`
-  query{
-    todos {
-      title 	
-    }
-  }
-`;
-
-const GET_TODOS_PAGED = gql`
-  query ($token: String!) {
-    todos(token: $token, first: 1, offset: 1) {
-      title
-    }
-  }
-`;
-
-const GET_TODOS_ORDERED = gql`
-  query ($token: String!) {
-    todos(token: $token, orderBy: text_asc) {
-      title
-    }
-  }
-`;
-
-const LOGIN_USER = gql`
-  mutation loginUser($username: String!, $password: String!) {
-      loginUser(username: $username, password: $password){
-        token
+  it('user login', async() => {
+    const result = await mutate({
+      mutation: LOGIN_USER,
+      variables: {
+        username: "user1",
+        password: "12345"
       }
-  }`;
+    });
+    expect(result.errors).toBeUndefined();
+
+    const token = result.data.loginUser.token;
+    const user = decryptedToken(token);
+    expect(user.username).toBe("user1");
+    expect(user.password).toBe("12345");
+  });
+
+  it('wrong user login', async() => {
+    const result = await mutate({
+      mutation: LOGIN_USER,
+      variables: {
+        username: "userXYZ",
+        password: "trash"
+      }
+    });
+    expect(result.errors[0].message).toBe("Not Authorised!");
+  });
+});
+

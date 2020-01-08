@@ -35,12 +35,23 @@ const resolvers = {
         todos.push({
             title: input.title,
         });
+        return todos;
       },
       deleteToDo: (object, input) =>{
+        if(input.index >= todos.length){
+          return null;
+        }
+        const delTodo = todos[input.index];
         todos.splice(input.index, 1);
+        return delTodo;
       },
       updateToDo: (object, input) => {
+        if(input.index >= todos.length){
+          return null;
+        }
         todos[input.index].title = input.title;
+        return todos;
+         
       },
       loginUser: (object, params)  => {
 

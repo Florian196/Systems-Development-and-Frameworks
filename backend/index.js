@@ -1,9 +1,11 @@
 const { ApolloServer } = require('apollo-server');
+
 const { typeDefs } = require('./typeDefs');
 const { resolvers } = require('./resolvers');
+const permissions  = require("./permissions");
 const { applyMiddleware} = require('graphql-middleware');
 const { makeExecutableSchema } = require("graphql-tools");
-const permissions  = require("./permissions");
+
 const getContext = require('./context');
 
 const schema = applyMiddleware(makeExecutableSchema({ typeDefs, resolvers}),permissions);

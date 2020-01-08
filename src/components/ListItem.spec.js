@@ -14,7 +14,6 @@ const mountItem = shallowMount(ListItem, {
 
 describe("ListItem", () => {
     test('click on edit button shows input field', () =>{
-        console.log(mountItem.contains("input"));
         mountItem.find("#edit").trigger('click');
         setTimeout( ()=>{
             expect(mountItem.contains("input")).toBe(true);
