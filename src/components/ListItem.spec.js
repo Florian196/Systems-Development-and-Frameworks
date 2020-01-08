@@ -4,7 +4,8 @@ import ListItem from './ListItem';
 const mountItem = shallowMount(ListItem, {
     propsData: {
         item: {
-            text: "original"
+            title: "Predator",
+            length: 120
         },
         index: 0
     }
@@ -21,9 +22,11 @@ describe("ListItem", () => {
         
     });
     test('cancel edit changes', () =>{
-        mountItem.find("input").setValue("edited");
+        mountItem.find("input#title").setValue("Frozen");
+        mountItem.find("input#length").setValue(125);
         mountItem.find("#cancel").trigger("click");
-        expect(mountItem.props("item").text).toBe("original");
+        expect(mountItem.props("item").title).toBe("Predator");
+        expect(mountItem.props("item").length).toBe(120);
         setTimeout( ()=>{
             expect(mountItem.contains("input")).toBe(false);
         }, 100);
@@ -31,9 +34,11 @@ describe("ListItem", () => {
     test('save edit changes', () =>{
         mountItem.find("#edit").trigger("click");
         setTimeout( ()=>{
-            mountItem.find("input").setValue("edited");
+            mountItem.find("input#title").setValue("Frozen");
+            mountItem.find("input#length").setValue(125);
             mountItem.find("#save").trigger("click");
-            expect(mountItem.props("item").text).toBe("edited");
+            expect(mountItem.props("item").title).toBe("Frozen");
+            expect(mountItem.props("item").length).toBe(125);
             setTimeout( ()=>{
                 expect(mountItem.contains("input")).toBe(false);
             }, 100);

@@ -2,18 +2,19 @@
   <div id="list">
 	<h3>{{headline}}</h3>
 	<ul>
-      <ListItem v-for="(item, index) in ToDoList"
+      <ListItem v-for="(item, index) in MovieList"
                  :item="item"
                  :index="index"
                  :key="index"
-                 @deleteMyToDo="deleteMyToDo"
-                 v-on:addText="addText">
+                 @deleteMovie="deleteMovie"
+                 v-on:addText="addMovie">
       </ListItem>
       
 	</ul>
   <div id="add">
-        <input v-model="add_item_text" />
-        <button v-on:click="addText">Add</button>
+        <input v-model="add_item_title" />
+        <input type="number" v-model="add_item_length">
+        <button v-on:click="addMovie">Add movie</button>
   </div>
   </div>
 </template>
@@ -28,24 +29,30 @@ export default {
   },
   data: function() {
 	return {
-      headline: "ToDo-List",
-      ToDoList: [
-        {text: "Clean room"},
-        {text: "Finish task1"},
-        {text: "Add task2"}
+      headline: "Movie-List",
+      MovieList: [
+        {title: "Predator",
+          length: 120},
+        {title: "Frozen",
+          length: 125},
+        {title: "Alien vs Predator",
+          length: 180}
       ],
-      add_item_text: ""
+      add_item_title: "",
+      add_item_length: 0
     }
   },
   methods: {
-    deleteMyToDo: function(index) {
-      this.ToDoList.splice(index, 1);
+    deleteMovie: function(index) {
+      this.MovieList.splice(index, 1);
     },
-    addText: function(){
-      this.ToDoList.push({
-        text: this.add_item_text
+    addMovie: function(){
+      this.MovieList.push({
+        title: this.add_item_title,
+        length: this.add_item_length
       });
-      this.add_item_text = "";
+      this.add_item_title = "";
+      this.add_item_length = 0;
     }
   }
 }

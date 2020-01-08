@@ -2,9 +2,10 @@
   <div id="list-item">
     <div v-if="edit">
       <li>
-      <input v-model="new_item_text" />
-      <button id="save" @click="saveNewText">Save</button>
-      <button id="cancel" @click="cancelSavingMode">Cancel</button>
+        <input id="title" v-model="new_item_title" />
+        <input id="length" type="number" v-model="new_item_length" />
+        <button id="save" @click="saveNewMovie">Save</button>
+        <button id="cancel" @click="cancelSavingMode">Cancel</button>
       </li>
     </div>
     <div v-else>
@@ -23,24 +24,27 @@ export default {
   data() {
     return {
       edit: false,
-      new_item_text: ""
+      new_item_title: "",
+      new_item_length: 0
     }
   },
   methods: {
     setSavingMode: function() {
       this.edit = true;
-      this.new_item_text = this.item.text;
+      this.new_item_title = this.item.title;
+      this.new_item_length = this.item.length;
     },
 
     cancelSavingMode: function() {
       this.edit = false;
     },
-    saveNewText: function() {
-      this.item.text = this.new_item_text;
+    saveNewMovie: function() {
+      this.item.title = this.new_item_title;
+      this.item.length = this.new_item_length;
       this.edit = false;
     },
     deleteItem: function(){
-      this.$emit("deleteMyToDo", this.index);
+      this.$emit("deleteMovie", this.index);
     }
   }
 }
