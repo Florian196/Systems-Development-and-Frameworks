@@ -28,6 +28,7 @@ export default {
     Logo,
     User
   },
+  middleware: ['isAuth']
 }
 </script>
 

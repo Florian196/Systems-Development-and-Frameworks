@@ -29,7 +29,8 @@ export default {
   name: 'app',
   components: {
     List
-  }
+  },
+  middleware: ['isAuth']
 }
 </script>
 

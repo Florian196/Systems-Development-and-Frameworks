@@ -8,7 +8,16 @@
       <h2 class="subtitle">
         My super-duper SDF project
       </h2>
-      <div v-if="IsLoggedIn">
+      <form @submit.prevent="onSubmit" v-if="!isAuthenticated">
+        Username: <input type="text" v-model="credentials.username" required />
+        <br>
+        <br>
+        Password: <input type="password" v-model="credentials.password" required/>
+        <br>
+        <br>
+        <button type="submit">Login</button>
+      </form>
+      <div v-else>
         <div class="links">
           <a
             target="_blank"
@@ -17,21 +26,15 @@
             <nuxt-link to="/movie">Movie List</nuxt-link>
           </a>
         </div>
+        <button type="button" @click="onLogout">Logout</button>
       </div>
-      <div v-else>
-        Username: <input />
-        <br>
-        <br>
-        Password: <input />
-        <br>
-        <br>
-        <button>Login</button>
-      </div>
+      <div style="color: red;" v-if="error">{{error}}</div>
     </div>
   </div>
 </template>
 
 <script>
+import authenticateUserGql from '../gql/authenticateUser.gql'
 import Logo from '~/components/Logo.vue'
 
 export default {
@@ -40,9 +43,38 @@ export default {
   },
   data: function() {
     return {
-      IsLoggedIn: false
+      isAuthenticated:false,
+      error: null,
+      credentials: {
+          username: '',
+          password: ''
+      }
     }
-  }
+  },
+  mounted(){
+    this.isAuthenticated = !!this.$apolloHelpers.getToken()
+  },
+  methods: {
+    async onSubmit () {
+        const credentials = this.credentials
+        try {
+            const res = await this.$apollo.mutate({
+                mutation: authenticateUserGql,
+                variables: credentials
+            })
+            await this.$apolloHelpers.onLogin(res.data.loginUser.token, undefined, { expires: 7 })
+            console.log(res)
+            this.isAuthenticated = true
+        } catch (e) {
+            console.error(e)
+            this.error = e
+        }
+    },
+    async onLogout(){
+        await this.$apolloHelpers.onLogout()
+        this.isAuthenticated = false
+    }
+}
 }
 </script>
 
