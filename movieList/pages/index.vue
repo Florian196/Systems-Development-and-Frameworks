@@ -8,13 +8,24 @@
       <h2 class="subtitle">
         My super-duper SDF project
       </h2>
-      <div class="links">
-        <a
-          target="_blank"
-          class="button--green"
-        >
-          <nuxt-link to="/movie">Movie List</nuxt-link>
-        </a>
+      <div v-if="IsLoggedIn">
+        <div class="links">
+          <a
+            target="_blank"
+            class="button--green"
+          >
+            <nuxt-link to="/movie">Movie List</nuxt-link>
+          </a>
+        </div>
+      </div>
+      <div v-else>
+        Username: <input />
+        <br>
+        <br>
+        Password: <input />
+        <br>
+        <br>
+        <button>Login</button>
       </div>
     </div>
   </div>
@@ -26,6 +37,11 @@ import Logo from '~/components/Logo.vue'
 export default {
   components: {
     Logo
+  },
+  data: function() {
+    return {
+      IsLoggedIn: false
+    }
   }
 }
 </script>
