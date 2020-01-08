@@ -1,5 +1,6 @@
 const decryptedToken = require('./jwtDecoder');
 const neo4j = require('neo4j-driver');
+const { users } = require('./resolvers');
 
 function getContext(req){
     const neoDriver = neo4j.driver(
