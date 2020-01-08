@@ -2,7 +2,7 @@ import { mount, shallowMount } from '@vue/test-utils';
 import List from './List';
 import ListItem from './ListItem';
 
-const mountList = shallowMount(List, {
+let mountList = shallowMount(List, {
     headline: "ToDo-List",
     ToDoList: [
       {text: "Clean room"},
@@ -22,13 +22,18 @@ describe("List", () => {
     });
     test('Delete item', () => {
         const length = mountList.findAll(ListItem).length;
+        console.log(length);
         mountList.find(ListItem).vm.$emit('deleteMyToDo', 0);
-        expect(mountList.findAll(ListItem).length).toBe(length - 1);
+        setTimeout( ()=>{
+            expect(mountList.findAll(ListItem).length).toBe(length - 1);
+        }, 100);
     });
     test('Add ListItem', () => {
         const length = mountList.findAll(ListItem).length;
         mountList.find(ListItem).vm.$emit('addText');
-        expect(mountList.findAll(ListItem).length).toBe(length + 1);
+        setTimeout( ()=>{
+            expect(mountList.findAll(ListItem).length).toBe(length + 1);
+        }, 100);
     });
 });
 
