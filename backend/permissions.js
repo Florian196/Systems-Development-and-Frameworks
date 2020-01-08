@@ -1,6 +1,4 @@
 const {rule, shield, allow } =  require('graphql-shield');
-const decryptedToken = require('./jwtDecoder');
-const { users } = require('./resolvers');
 
 const isAuthenticated = rule()(
     async (parent, args, context) => {
