@@ -9,7 +9,6 @@
                  @deleteMovie="deleteMovie"
                  v-on:addText="addMovie">
       </ListItem>
-      
 	</ul>
   <div id="add">
         <input v-model="add_item_title" />

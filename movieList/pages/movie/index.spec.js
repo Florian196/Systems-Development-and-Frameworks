@@ -1,5 +1,5 @@
 import { mount, shallowMount } from '@vue/test-utils';
-import List from './List';
+import List from './index';
 import ListItem from './ListItem';
 
 let mountList = shallowMount(List, {

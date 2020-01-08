@@ -9,7 +9,7 @@
       </li>
     </div>
     <div v-else>
-      <li>{{item.text}}
+      <li>Titel: {{item.title}}, Dauer: {{item.length}} min
       <button id="edit" @click="setSavingMode">Edit</button>
       <button @click="deleteItem">Delete</button>
       </li>
