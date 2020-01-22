@@ -1,0 +1,6 @@
+query {
+  movieList {
+    title,
+    length
+  }
+}

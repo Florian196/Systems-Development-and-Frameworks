@@ -1,0 +1,6 @@
+mutation updateMovie($title: String!, $length: Int!, $index: Int!){
+  updateMovie(title: $title, length: $length, index: $index){
+    title,
+    length
+  }
+}

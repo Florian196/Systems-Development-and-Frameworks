@@ -1,0 +1,6 @@
+mutation addMovie($title: String!, $length: Int!){
+  addMovie(title: $title, length: $length){
+    title,
+    length
+  }
+}

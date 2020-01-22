@@ -1,0 +1,6 @@
+mutation deleteMovie($index:Int!){
+  deleteMovie(index: $index){
+    title,
+    length
+  }
+}
