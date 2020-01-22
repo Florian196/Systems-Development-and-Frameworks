@@ -3,7 +3,7 @@
     <div v-if="edit">
       <li>
         <input id="title" v-model="new_item_title" />
-        <input id="length" type="number" v-model="new_item_length" />
+        <input id="length" type="number" v-model.number="new_item_length" />
         <button id="save" @click="saveNewMovie">Save</button>
         <button id="cancel" @click="cancelSavingMode">Cancel</button>
       </li>
@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import movieListMutationUpdateMovie from '../../gql/movieListMutationUpdateMovie.gql'
 export default {
   name: 'listItem',
   props: ['item', 'index'],
@@ -38,10 +39,26 @@ export default {
     cancelSavingMode: function() {
       this.edit = false;
     },
-    saveNewMovie: function() {
-      this.item.title = this.new_item_title;
-      this.item.length = this.new_item_length;
+    saveNewMovie: async function() {
       this.edit = false;
+
+      try {
+        const res = await this.$apollo.mutate({
+          mutation: movieListMutationUpdateMovie,
+          variables: {
+            title: this.new_item_title,
+            length: this.new_item_length,
+            index: this.index
+          }
+        }).then(({data}) => {
+          console.log(data);
+          this.item.title = data.updateMovie[this.index].title;
+          this.item.length = data.updateMovie[this.index].length;
+        });
+      } catch (e) {
+        console.error(e);
+        this.error = e
+      }
     },
     deleteItem: function(){
       this.$emit("deleteMovie", this.index);

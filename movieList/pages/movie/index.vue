@@ -12,46 +12,80 @@
 	</ul>
   <div id="add">
         <input v-model="add_item_title" />
-        <input type="number" v-model="add_item_length">
+        <input type="number" v-model.number="add_item_length">
         <button v-on:click="addMovie">Add movie</button>
   </div>
   </div>
 </template>
 
 <script>
-import ListItem from "./ListItem" 
+import movieListQuery from '../../gql/movieListQuery.gql'
+import movieListMutationDeleteMovie from '../../gql/movieListMutationDeleteMovie.gql'
+import movieListMutationAddMovie from '../../gql/movieListMutationAddMovie.gql'
+import ListItem from "./ListItem"
 
 export default {
   name: "list",
   components: {
     ListItem
   },
+
   data: function() {
-	return {
+    return {
       headline: "Movie-List",
-      MovieList: [
-        {title: "Predator",
-          length: 120},
-        {title: "Frozen",
-          length: 125},
-        {title: "Alien vs Predator",
-          length: 180}
-      ],
       add_item_title: "",
-      add_item_length: 0
+      add_item_length: 0,
+      MovieList: this.getMovieList()
     }
   },
+
   methods: {
-    deleteMovie: function(index) {
-      this.MovieList.splice(index, 1);
+    getMovieList: async function () {
+      //console.log("Start get Movie!");
+      try {
+        this.MovieList = await this.$apollo.query({query: movieListQuery})
+          .then(({data}) => {
+            //console.log(data.movieList);
+            return data.movieList;
+          });
+      } catch (e) {
+        console.error(e);
+        this.error = e
+      }
     },
-    addMovie: function(){
-      this.MovieList.push({
-        title: this.add_item_title,
-        length: this.add_item_length
-      });
-      this.add_item_title = "";
-      this.add_item_length = 0;
+
+    deleteMovie: async function(index) {
+      try {
+        const res = await this.$apollo.mutate({
+          mutation: movieListMutationDeleteMovie,
+          variables: {index: index}
+        }).then(({data}) => {
+          console.log(data);
+          this.getMovieList();
+        });
+      } catch (e) {
+        console.error(e);
+        this.error = e
+      }
+    },
+    addMovie: async function() {
+      try {
+        const res = await this.$apollo.mutate({
+          mutation: movieListMutationAddMovie,
+          variables: {
+            title: this.add_item_title,
+            length: this.add_item_length
+          }
+        }).then(({data}) => {
+          this.MovieList = data.addMovie;
+        });
+      } catch (e) {
+        console.error(e);
+        this.error = e
+      }
+    },
+    updateMovie: async function() {
+
     }
   }
 }
